@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- 
+create table tab_mybatis (
+  id varchar2(30) primary key,
+  name varchar2(30),
+  email varchar2(30),
+  phone varchar2(30)
+);
+
+insert into tab_mybatis values ('A001', '이기자', 'A001@daum.net', '010-1111-1111');
+insert into tab_mybatis values ('A002', '김기자', 'A002@daum.net', '010-2222-2222');
+insert into tab_mybatis values ('A003', '박기자', 'A003@daum.net', '010-3333-3333');
+insert into tab_mybatis values ('A004', '길기자', 'A004@daum.net', '010-4444-4444');
+insert into tab_mybatis values ('A005', '홍기자', 'A005@daum.net', '010-5555-5555');
+commit;
+-->
+
+<!-- DAO역할을 대신 해줌. -->
+
+
+<!-- namespace="com.spring.mapper.MemberMapper는 
+	 MemberMapper인퍼페이스(MemberMapper.class)의 이름을 사용한다. -->
+<mapper namespace="com.spring.mapper.MemberMapper">
+	<!-- HashMap 이용시 추가부분 -->
+	<resultMap type="java.util.HashMap" id="hashmapVO">
+					<!-- 이 해쉬맵을 사용하기위해 id를 지정 -->
+		<result property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="email" column="email" />
+		<result property="phone" column="phone" />
+		<!-- property 가 key column 은 컬럼이름.  -->
+	</resultMap>
+	<!--  
+	<resultMap type="MemberVO" id="MemberResultMap"> 
+		<result property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="email" column="email" />
+		<result property="phone" column="phone" />
+		 column에 적힌 값을 MemberVO 객체의 property에 저장하겠다. 
+	</resultMap>
+	-->
+	
+	<!-- id는 Mapper.java(여기선 MemberMapper.java)에 동일하게 사용해야된다. -->
+	<!--    
+	<select id="getMembers" resultMap="MemberResultMap"> 
+	 여기에는 엘리먼트에 해당하는 sql문이 와야한다. select/ insert / update / delete ...
+	 
+	</select>
+	-->
+	<select id="getMembers" resultType="MemberVO">
+	<!-- 이미 존재하는 클래스나 데이터 타입을 사용할때는 클래스명을 적고 아니면 resultMap="MemberResultMap" -->
+		SELECT * FROM tab_mybatis order by id
+	<!--	테이블에 있는 컬럼이름과 vo에 들어갈 필드 이름을 동일하게 지정해주자. -->
+	</select>
+	
+<!--
+	<select id="getMembers" parameterType="String" resultType="MemberVO">
+		SELECT * FROM ${value} order by name
+	</select>
+
+	<select id="getMember" parameterType="String" resultType="MemberVO">
+		SELECT * FROM tab_mybatis WHERE id=#{id, javaType=String}
+	</select>
+	-->
+	
+	<select id="getMember" parameterType="String" resultMap="hashmapVO">
+		SELECT * FROM tab_mybatis WHERE id=#{id, javaType=String}
+	</select>
+	
+	<!-- parameterType 에는 구문에 전달될 파라미터의 패키지 경로를 포함한 전체 클래스명이나 별칭이 들어간다 -->
+	<!-- root-context에서 아래와 같이 typeAliasesPackage를 설정하면 패키지 경로 생략 가능. 
+	<property name="typeAliasesPackage" value="com.spring.springmybatis" /> 추가시
+	<insert id="insertMember" parameterType="MemberVO" > 로 표현 가능
+	-->
+	<insert id="insertMember" parameterType="MemberVO" >
+	<!-- 파라메타 값이 클래스 명으로 되어 있을 경우엔 그냥 그 값을 사용하면 됨.  -->
+	<!-- id에 쓰인 이름은 MemberMapper.java의 메소드로 지정되어 있고, 그 메소드의 파라메터 타입과 일치해야함. -->
+	<!-- 메소드 앞에 int를 적으면 리턴값을 전달해줌.  -->
+		INSERT INTO tab_mybatis VALUES 
+			(#{id, javaType=String},#{name, jdbcType=VARCHAR},#{email},#{phone})    
+			<!-- jdbcType 라서 VARCHAR 타입으로 적어줌 javaType이면 String -->
+	</insert>
+	<insert id="insertMember2" parameterType="HashMap" >
+	<!-- 해쉬맵에 저장된 키를 파라메타로 사용 하면  됨.  -->
+		INSERT INTO tab_mybatis VALUES 
+			(#{id, javaType=String},#{name, jdbcType=VARCHAR},#{email},#{phone})
+	</insert>
+
+	<update id="updateMember" parameterType="MemberVO">
+		UPDATE tab_mybatis SET name=#{name}, email=#{email}, 
+			phone=#{phone} WHERE id=#{id}
+	</update>
+ 	
+	<delete id="deleteMember" parameterType="String">
+		DELETE FROM tab_mybatis WHERE id=#{id}
+	</delete>
+	
+	<select id="getCount" resultType="int"> <!-- resultType에는 우리가 알고 있는 타입을 적어주면 됨.  -->
+		select count(*) FROM tab_mybatis
+	</select>
+
+</mapper>

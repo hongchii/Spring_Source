@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+	 PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+	 
+<mapper namespace="com.spring.mapper.EmpMapper">
+	
+	<select id="getList" resultType="EmpVO">
+		select * from emp_copy order by deptno
+	</select>
+	 <!-- 
+	<select id="getDeptno" parameterType="List" resultType="EmpVO">
+		select * from emp_copy where deptno=#{deptno} order by deptno
+	</select>
+	 -->
+	 
+	
+	<select id="getDeptno" resultType="EmpVO"> 
+	SELECT * from emp_copy WHERE 
+	<foreach 
+	collection="array" item='item' separator="or" close="order by deptno"> deptno=#{item} </foreach> 
+	</select>
+
+	
+	<select id="getJob" resultType="EmpVO">
+		select * from emp_copy where job = #{job} order by deptno
+	</select>
+	
+	
+</mapper>	
